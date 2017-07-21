@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/rei/asset-tag-frag-webpack-plugin#readme",
   "dependencies": {
+    "mocha": "^3.4.2",
     "ramda": "^0.24.1"
   }
 }
