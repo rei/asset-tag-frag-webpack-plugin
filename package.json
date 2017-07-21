@@ -1,0 +1,27 @@
+{
+  "name": "asset-tag-frag-webpack-plugin",
+  "version": "1.0.0",
+  "description": "Generate HTML fragment of asset tags.",
+  "main": "src/AssetTagPlugin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rei/asset-tag-frag-webpack-plugin.git"
+  },
+  "keywords": [
+    "webpack",
+    "asset",
+    "fragment"
+  ],
+  "author": "Alex Perkins <aperkin@rei.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rei/asset-tag-frag-webpack-plugin/issues"
+  },
+  "homepage": "https://github.com/rei/asset-tag-frag-webpack-plugin#readme",
+  "dependencies": {
+    "ramda": "^0.24.1"
+  }
+}
