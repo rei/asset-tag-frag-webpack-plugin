@@ -8,7 +8,7 @@ A Webpack plugin that generates HTML fragments for your build assets.
 
 ## Basic Usage
     // webpack.conf.js
-    const AssetTagPlugin = require('AssetTagPlugin');
+    const AssetTagPlugin = require('asset-tag-frag-webpack-plugin');
     
     ...
     {
