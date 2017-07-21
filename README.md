@@ -2,7 +2,7 @@
 
 # Description
 
-A Webpack plugin that generates HTML fragments with your build assets.
+A Webpack plugin that generates HTML fragments for your build assets.
 
 # Usage
 
@@ -25,8 +25,9 @@ This will write your js and css asset tags to 2 files:
 
 ## Plugin Options
 
-You may pass an options object to the plugin do customize the filnames you want to write tags to as well as tag attributes you want to include in the tag.
+You may pass an options object to the plugin to customize the filnames you want to write tags to as well as tag attributes you want to include in the tag. 
 
+NOTE: for now, all tag attributes you specify are included in corresponding js/css tags.
   
     {
       js: {
