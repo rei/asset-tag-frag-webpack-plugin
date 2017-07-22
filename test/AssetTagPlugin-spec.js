@@ -81,7 +81,7 @@ describe('AssetTagPlugin', () => {
 
     instance.apply(compiler);
     const content = fs.readFileSync('/test/test.html', 'utf8');
-    assert.equal('<script src="app.bundle.js" ></script>', content);
+    assert.equal('<script src="app.bundle.js"></script>', content);
   });
 
   it('creates js and css fragments', () => {
@@ -106,11 +106,11 @@ describe('AssetTagPlugin', () => {
 
     // Verify js bundle
     let content = fs.readFileSync('/test/bundle-js.html', 'utf8');
-    assert.equal('<script src="app.bundle.js" ></script>', content);
+    assert.equal(content, '<script src="app.bundle.js"></script>');
 
     // Verify css bundle
     content = fs.readFileSync('/test/bundle-css.html', 'utf8');
-    assert.equal('<link rel="stylesheet" type="text/css" href="app.bundle.css" >', content);
+    assert.equal(content, '<link rel="stylesheet" type="text/css" href="app.bundle.css">');
   });
 
   it('creates js tag with attributes', () => {

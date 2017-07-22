@@ -34,16 +34,19 @@ module.exports = function (opts) {
     const tagPropsCss = (opts && opts.css && opts.css.tagProps) || {};
 
     if (ext === '.js') {
+      const tagPropsString = `src="${assetName}" ${objToString(tagPropsJs)}`.trim();
       return {
         ext,
-        tag: `<script src="${assetName}" ${objToString(tagPropsJs)}></script>`,
+        tag: `<script ${tagPropsString}></script>`,
       };
     }
 
     if (ext === '.css') {
+      const tagPropsString = `rel="stylesheet" type="text/css" href="${assetName}" ${objToString(tagPropsCss)}`.trim();
+
       return {
         ext,
-        tag: `<link rel="stylesheet" type="text/css" href="${assetName}" ${objToString(tagPropsCss)}>`,
+        tag: `<link ${tagPropsString}>`,
       };
     }
     throw new Error(`Unexpected asset name: ${assetName}`);
