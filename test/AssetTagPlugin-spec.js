@@ -7,6 +7,8 @@ let lib;
 let AssetTagPlugin;
 
 describe('AssetTagPlugin', () => {
+  const destDir = '/test';
+
   beforeEach(() => {
     // Re-instantiate the world.
     fs = new FS();
@@ -20,6 +22,9 @@ describe('AssetTagPlugin', () => {
     AssetTagPlugin = pq('../src/AssetTagPlugin', {
       './lib': lib,
     });
+
+    // Destination directory
+    fs.mkdirpSync(destDir);
   });
 
   it('is a function', () => {
@@ -32,9 +37,6 @@ describe('AssetTagPlugin', () => {
   });
 
   it('creates a fragment with a single bundle', () => {
-    const destDir = '/test';
-    fs.mkdirpSync('/test');
-
     // Stub compilation
     const compilation = {
       assets: {
@@ -72,9 +74,6 @@ describe('AssetTagPlugin', () => {
   });
 
   it('creates js tag with attributes', () => {
-    const destDir = '/test';
-    fs.mkdirpSync('/test');
-
     // Stub compilation
     const compilation = {
       assets: {
@@ -115,9 +114,6 @@ describe('AssetTagPlugin', () => {
   });
 
   it('creates fragment with 2 assets', () => {
-    const destDir = '/test';
-    fs.mkdirpSync('/test');
-
     // Stub compilation
     const compilation = {
       assets: {
@@ -158,9 +154,6 @@ describe('AssetTagPlugin', () => {
   });
 
   it('defaults correctly if no options passed in', () => {
-    const destDir = '/test';
-    fs.mkdirpSync('/test');
-
     // Stub compilation
     const compilation = {
       assets: {
