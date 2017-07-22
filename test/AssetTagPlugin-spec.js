@@ -16,9 +16,8 @@ const createCompilerStub = function createCompilerStub(options) {
     assets: options.assets,
   };
 
-  // Stub compiler
-  const compiler = {
-
+  // Return the compiler object.
+  return {
     // The passed in wp conf.
     options: {
       output: {
@@ -30,7 +29,6 @@ const createCompilerStub = function createCompilerStub(options) {
       callback(compilation, () => {});
     },
   };
-  return compiler;
 };
 
 
