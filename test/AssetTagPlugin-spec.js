@@ -138,12 +138,37 @@ describe('AssetTagPlugin', () => {
     assert.equal('<script src="app.bundle.js" id="x"></script>', content);
   });
 
-  it('creates fragment with 2 assets', () => {
+  it('creates css tag with attributes', () => {
+    const compiler = createCompilerStub({
+      assets: {
+        'app.bundle.css': {},
+      },
+      destDir,
+    });
+
+    const instance = new AssetTagPlugin({
+      css: {
+        filename: 'test.html',
+        tagProps: {
+          id: 'x',
+          class: 'y',
+        },
+      },
+    });
+
+    instance.apply(compiler);
+    const content = fs.readFileSync('/test/test.html', 'utf8');
+    assert.equal('<link rel="stylesheet" type="text/css" href="app.bundle.css" id="x" class="y">', content);
+  });
+
+  it('creates fragment with multiple assets', () => {
     // Stub compilation
     const compiler = createCompilerStub({
       assets: {
         'app1.bundle.js': {},
         'app2.bundle.js': {},
+        'app3.bundle.js': {},
+        'app4.bundle.js': {},
       },
       destDir,
     });
@@ -162,6 +187,8 @@ describe('AssetTagPlugin', () => {
     const content = fs.readFileSync('/test/test.html', 'utf8');
     assert(content.includes('app1.bundle.js'));
     assert(content.includes('app2.bundle.js'));
+    assert(content.includes('app3.bundle.js'));
+    assert(content.includes('app4.bundle.js'));
   });
 
   it('defaults correctly if no options passed in', () => {
