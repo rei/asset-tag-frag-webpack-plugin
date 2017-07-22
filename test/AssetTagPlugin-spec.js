@@ -6,6 +6,34 @@ let fs;
 let lib;
 let AssetTagPlugin;
 
+/**
+   * Test helper to create a wepback compiler stub.
+   * @param {*} options
+   */
+const createCompilerStub = function createCompilerStub(options) {
+  // Stub compilation
+  const compilation = {
+    assets: options.assets,
+  };
+
+  // Stub compiler
+  const compiler = {
+
+    // The passed in wp conf.
+    options: {
+      output: {
+        path: options.destDir,
+      },
+    },
+
+    plugin(event, callback) {
+      callback(compilation, () => {});
+    },
+  };
+  return compiler;
+};
+
+
 describe('AssetTagPlugin', () => {
   const destDir = '/test';
 
@@ -37,28 +65,6 @@ describe('AssetTagPlugin', () => {
   });
 
   it('creates a fragment with a single bundle', () => {
-    // Stub compilation
-    const compilation = {
-      assets: {
-        'app.bundle.js': {},
-      },
-    };
-    // Stub compiler
-    const compiler = {
-
-      // The passed in wp conf.
-      options: {
-        output: {
-          path: destDir,
-        },
-      },
-
-      plugin(event, callback) {
-        callback(compilation, () => {});
-      },
-    };
-
-
     const instance = new AssetTagPlugin({
       js: {
         filename: 'test.html',
@@ -68,33 +74,25 @@ describe('AssetTagPlugin', () => {
       },
     });
 
+    const compiler = createCompilerStub({
+      assets: {
+        'app.bundle.js': {},
+      },
+      destDir,
+    });
+
     instance.apply(compiler);
     const content = fs.readFileSync('/test/test.html', 'utf8');
     assert.equal('<script src="app.bundle.js" ></script>', content);
   });
 
   it('creates js tag with attributes', () => {
-    // Stub compilation
-    const compilation = {
+    const compiler = createCompilerStub({
       assets: {
         'app.bundle.js': {},
       },
-    };
-    // Stub compiler
-    const compiler = {
-
-      // The passed in wp conf.
-      options: {
-        output: {
-          path: destDir,
-        },
-      },
-
-      plugin(event, callback) {
-        callback(compilation, () => {});
-      },
-    };
-
+      destDir,
+    });
 
     const instance = new AssetTagPlugin({
       js: {
@@ -115,27 +113,13 @@ describe('AssetTagPlugin', () => {
 
   it('creates fragment with 2 assets', () => {
     // Stub compilation
-    const compilation = {
+    const compiler = createCompilerStub({
       assets: {
         'app1.bundle.js': {},
         'app2.bundle.js': {},
-
       },
-    };
-    // Stub compiler
-    const compiler = {
-
-      // The passed in wp conf.
-      options: {
-        output: {
-          path: destDir,
-        },
-      },
-
-      plugin(event, callback) {
-        callback(compilation, () => {});
-      },
-    };
+      destDir,
+    });
 
 
     const instance = new AssetTagPlugin({
@@ -154,26 +138,12 @@ describe('AssetTagPlugin', () => {
   });
 
   it('defaults correctly if no options passed in', () => {
-    // Stub compilation
-    const compilation = {
+    const compiler = createCompilerStub({
       assets: {
         'app1.bundle.js': {},
       },
-    };
-    // Stub compiler
-    const compiler = {
-
-      // The passed in wp conf.
-      options: {
-        output: {
-          path: destDir,
-        },
-      },
-
-      plugin(event, callback) {
-        callback(compilation, () => {});
-      },
-    };
+      destDir,
+    });
 
     // No options passed in.
     const instance = new AssetTagPlugin();
