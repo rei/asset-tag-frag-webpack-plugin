@@ -52,9 +52,7 @@ NOTE: for now, all tag attributes you specify are included in corresponding js/c
       css: {
         filename: "css-assets.html",
         tagProps: {
-          tagProps: {
-            id: "css-app-bundle"
-          }
+          id: "css-app-bundle"
         }
       }
     })
