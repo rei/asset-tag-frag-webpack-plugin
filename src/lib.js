@@ -13,15 +13,12 @@ module.exports = function (opts) {
  * @param {*} obj
  */
   const objToString = (obj) => {
-    if (obj) {
-      const keys = Object.keys(obj);
-      return keys.reduce((acc, val) => {
-        let newAcc = acc;
-        newAcc += `${val}="${obj[val]}" `;
-        return newAcc;
-      }, '').trim();
-    }
-    return '';
+    const keys = Object.keys(obj);
+    return keys.reduce((acc, val) => {
+      let newAcc = acc;
+      newAcc += `${val}="${obj[val]}" `;
+      return newAcc;
+    }, '').trim();
   };
 
 /**
@@ -41,15 +38,13 @@ module.exports = function (opts) {
       };
     }
 
-    if (ext === '.css') {
-      const tagPropsString = `rel="stylesheet" type="text/css" href="${assetName}" ${objToString(tagPropsCss)}`.trim();
+    // Otherwise, css.
+    const tagPropsString = `rel="stylesheet" type="text/css" href="${assetName}" ${objToString(tagPropsCss)}`.trim();
 
-      return {
-        ext,
-        tag: `<link ${tagPropsString}>`,
-      };
-    }
-    throw new Error(`Unexpected asset name: ${assetName}`);
+    return {
+      ext,
+      tag: `<link ${tagPropsString}>`,
+    };
   });
 
   /**
