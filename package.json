@@ -4,7 +4,8 @@
   "description": "Generate HTML fragment of asset tags.",
   "main": "src/AssetTagPlugin.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "cover": "istanbul cover node_modules/mocha/bin/_mocha"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
   },
   "homepage": "https://github.com/rei/asset-tag-frag-webpack-plugin#readme",
   "dependencies": {
+    "istanbul": "^0.4.5",
     "memory-fs": "^0.4.1",
     "mocha": "^3.4.2",
     "proxyquire": "^1.8.0",
