@@ -62,7 +62,7 @@ describe('AssetTagPlugin', () => {
     assert.equal(typeof instance.apply, 'function');
   });
 
-  it('creates a fragment with a single bundle', () => {
+  it('creates a fragment with a single js bundle', () => {
     const instance = new AssetTagPlugin({
       js: {
         filename: 'test.html',
@@ -82,6 +82,35 @@ describe('AssetTagPlugin', () => {
     instance.apply(compiler);
     const content = fs.readFileSync('/test/test.html', 'utf8');
     assert.equal('<script src="app.bundle.js" ></script>', content);
+  });
+
+  it('creates js and css fragments', () => {
+    const instance = new AssetTagPlugin({
+      js: {
+        filename: 'bundle-js.html',
+      },
+      css: {
+        filename: 'bundle-css.html',
+      },
+    });
+
+    const compiler = createCompilerStub({
+      assets: {
+        'app.bundle.js': {},
+        'app.bundle.css': {},
+      },
+      destDir,
+    });
+
+    instance.apply(compiler);
+
+    // Verify js bundle
+    let content = fs.readFileSync('/test/bundle-js.html', 'utf8');
+    assert.equal('<script src="app.bundle.js" ></script>', content);
+
+    // Verify css bundle
+    content = fs.readFileSync('/test/bundle-css.html', 'utf8');
+    assert.equal('<link rel="stylesheet" type="text/css" href="app.bundle.css" >', content);
   });
 
   it('creates js tag with attributes', () => {
