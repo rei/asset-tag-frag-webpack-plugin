@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/rei/asset-tag-frag-webpack-plugin.svg?branch=master)](https://travis-ci.org/rei/asset-tag-frag-webpack-plugin)
+
 # asset-tag-frag-webpack-plugin
 
 # Description
