@@ -66,3 +66,7 @@ This would generate 2 files in your output directory:
 
     // css-assets.html
     <link href="app.bundle.css" id="css-app-bundle">
+
+# Assumptions
+
+- This assumes you are using webpack ^3.0.0. It has not been tested with older versions.
