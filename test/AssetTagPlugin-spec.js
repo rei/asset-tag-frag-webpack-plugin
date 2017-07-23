@@ -8,7 +8,9 @@ let AssetTagPlugin;
 
 /**
    * Test helper to create a wepback compiler stub.
-   * @param {*} options
+   * @param {Object} options Options object to configure compiler stub.
+   * @param {Object} options.assets The object of compiled assets from WP.
+   * @param {String} options.destDir The output directory from WP conf.
    */
 const createCompilerStub = function createCompilerStub(options) {
   // Stub compilation
@@ -33,7 +35,9 @@ const createCompilerStub = function createCompilerStub(options) {
 
 
 describe('AssetTagPlugin', () => {
-  const destDir = '/test';
+  const destDir = '/build';
+  const defaultJSHtmlFile = `${destDir}/assets.js.html`;
+  const defaultCSSHtmlFile = `${destDir}/assets.css.html`;
 
   beforeEach(() => {
     // Re-instantiate the world.
@@ -63,14 +67,7 @@ describe('AssetTagPlugin', () => {
   });
 
   it('creates a fragment with a single js bundle', () => {
-    const instance = new AssetTagPlugin({
-      js: {
-        filename: 'test.html',
-      },
-      css: {
-        filename: 'test.html',
-      },
-    });
+    const instance = new AssetTagPlugin();
 
     const compiler = createCompilerStub({
       assets: {
@@ -80,19 +77,12 @@ describe('AssetTagPlugin', () => {
     });
 
     instance.apply(compiler);
-    const content = fs.readFileSync(`${destDir}/test.html`, 'utf8');
+    const content = fs.readFileSync(defaultJSHtmlFile, 'utf8');
     assert.equal('<script src="app.bundle.js"></script>', content);
   });
 
   it('creates js and css fragments', () => {
-    const instance = new AssetTagPlugin({
-      js: {
-        filename: 'bundle-js.html',
-      },
-      css: {
-        filename: 'bundle-css.html',
-      },
-    });
+    const instance = new AssetTagPlugin();
 
     const compiler = createCompilerStub({
       assets: {
@@ -105,12 +95,31 @@ describe('AssetTagPlugin', () => {
     instance.apply(compiler);
 
     // Verify js bundle
-    let content = fs.readFileSync(`${destDir}/bundle-js.html`, 'utf8');
+    let content = fs.readFileSync(defaultJSHtmlFile, 'utf8');
     assert.equal(content, '<script src="app.bundle.js"></script>');
 
     // Verify css bundle
-    content = fs.readFileSync('/test/bundle-css.html', 'utf8');
+    content = fs.readFileSync(defaultCSSHtmlFile, 'utf8');
     assert.equal(content, '<link rel="stylesheet" type="text/css" href="app.bundle.css">');
+  });
+
+  it('allows renaming of output file', () => {
+    const compiler = createCompilerStub({
+      assets: {
+        'app.bundle.js': {},
+      },
+      destDir,
+    });
+
+    const instance = new AssetTagPlugin({
+      js: {
+        filename: 'js-tags.html',
+      },
+    });
+
+    instance.apply(compiler);
+    const content = fs.readFileSync(`${destDir}/js-tags.html`, 'utf8');
+    assert.equal('<script src="app.bundle.js"></script>', content);
   });
 
   it('creates js tag with attributes', () => {
@@ -123,18 +132,14 @@ describe('AssetTagPlugin', () => {
 
     const instance = new AssetTagPlugin({
       js: {
-        filename: 'test.html',
         tagProps: {
           id: 'x',
         },
       },
-      css: {
-        filename: 'test.html',
-      },
     });
 
     instance.apply(compiler);
-    const content = fs.readFileSync(`${destDir}/test.html`, 'utf8');
+    const content = fs.readFileSync(defaultJSHtmlFile, 'utf8');
     assert.equal('<script src="app.bundle.js" id="x"></script>', content);
   });
 
@@ -148,7 +153,6 @@ describe('AssetTagPlugin', () => {
 
     const instance = new AssetTagPlugin({
       css: {
-        filename: 'test.html',
         tagProps: {
           id: 'x',
           class: 'y',
@@ -157,7 +161,7 @@ describe('AssetTagPlugin', () => {
     });
 
     instance.apply(compiler);
-    const content = fs.readFileSync(`${destDir}/test.html`, 'utf8');
+    const content = fs.readFileSync(defaultCSSHtmlFile, 'utf8');
     assert.equal('<link rel="stylesheet" type="text/css" href="app.bundle.css" id="x" class="y">', content);
   });
 
@@ -174,17 +178,10 @@ describe('AssetTagPlugin', () => {
     });
 
 
-    const instance = new AssetTagPlugin({
-      js: {
-        filename: 'test.html',
-      },
-      css: {
-        filename: 'test.html',
-      },
-    });
+    const instance = new AssetTagPlugin();
 
     instance.apply(compiler);
-    const content = fs.readFileSync(`${destDir}/test.html`, 'utf8');
+    const content = fs.readFileSync(defaultJSHtmlFile, 'utf8');
     assert(content.includes('app1.bundle.js'));
     assert(content.includes('app2.bundle.js'));
     assert(content.includes('app3.bundle.js'));
@@ -203,7 +200,23 @@ describe('AssetTagPlugin', () => {
     const instance = new AssetTagPlugin();
 
     instance.apply(compiler);
-    const content = fs.readFileSync(`${destDir}/assets.js.html`, 'utf8');
+    const content = fs.readFileSync(defaultJSHtmlFile, 'utf8');
+    assert(content.includes('app1.bundle.js'));
+  });
+
+  it('defaults correctly if bad options passed in', () => {
+    const compiler = createCompilerStub({
+      assets: {
+        'app1.bundle.js': {},
+      },
+      destDir,
+    });
+
+    // No options passed in.
+    const instance = new AssetTagPlugin("hey, these aren't options!");
+
+    instance.apply(compiler);
+    const content = fs.readFileSync(defaultJSHtmlFile, 'utf8');
     assert(content.includes('app1.bundle.js'));
   });
 });
