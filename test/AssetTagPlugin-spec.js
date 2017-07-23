@@ -65,7 +65,7 @@ describe('AssetTagPlugin', () => {
     assert.equal(typeof instance.apply, 'function');
   });
 
-  it('creates a fragment with a single js bundle', () => {
+  it('creates a fragment with a single js tag', () => {
     const instance = new AssetTagPlugin();
 
     const compiler = createCompilerStub({
@@ -80,7 +80,7 @@ describe('AssetTagPlugin', () => {
     assert.equal('<script src="app.bundle.js"></script>', content);
   });
 
-  it('creates js and css fragments', () => {
+  it('creates fragments with js and css tags', () => {
     const instance = new AssetTagPlugin();
 
     const compiler = createCompilerStub({
@@ -102,7 +102,7 @@ describe('AssetTagPlugin', () => {
     assert.equal(content, '<link rel="stylesheet" type="text/css" href="app.bundle.css">');
   });
 
-  it('allows renaming of output file', () => {
+  it('allows renaming of fragment file', () => {
     const compiler = createCompilerStub({
       assets: {
         'app.bundle.js': {},

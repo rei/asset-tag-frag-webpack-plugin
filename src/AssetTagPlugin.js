@@ -5,7 +5,7 @@
 
 const libFn = require('./lib');
 
-function AssetTagPlugin(options) {
+function AssetTagPlugin(options = {}) {
   this.options = options;
 }
 

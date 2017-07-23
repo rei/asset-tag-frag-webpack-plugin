@@ -70,7 +70,7 @@ const createLib = function createLib(opts) {
    */
   const writeTags = function (tagMeta, destDir) {
     const ext = tagMeta.ext.slice(1); // pull off the leading '.'
-    const filename = (options && options[ext] && options[ext].filename) || `assets.${ext}.html`;
+    const filename = R.pathOr(`assets.${ext}.html`, [ext, 'filename'], options);
     const destinationPath = path.resolve(destDir, filename);
 
     // if exists, append, otherwise create
