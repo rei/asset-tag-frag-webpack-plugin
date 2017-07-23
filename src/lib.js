@@ -29,14 +29,19 @@ const createLib = function createLib(opts) {
     }, '').trim();
   };
 
+  // Helpers fns to get tagProps data.
+  const getTagProps = R.curry((type, opts) => R.pathOr({}, [type, 'tagProps'], opts));
+  const getJsTagProps = getTagProps('js');
+  const getCssTagProps = getTagProps('css');
+
 /**
    * Creates the snippet of html needed for a built asset.
    * @param {*} assetName The filename of the js/css asset.
    */
   const createAssetTagCurried = R.curry((opts, assetName) => {
     const ext = path.extname(assetName);
-    const tagPropsJs = (opts && opts.js && opts.js.tagProps) || {};
-    const tagPropsCss = (opts && opts.css && opts.css.tagProps) || {};
+    const tagPropsJs = getJsTagProps(opts);
+    const tagPropsCss = getCssTagProps(opts);
 
     if (ext === '.js') {
       const tagPropsString = `src="${assetName}" ${objToString(tagPropsJs)}`.trim();
