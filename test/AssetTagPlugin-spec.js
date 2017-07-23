@@ -33,7 +33,6 @@ const createCompilerStub = function createCompilerStub(options) {
   };
 };
 
-
 describe('AssetTagPlugin', () => {
   const destDir = '/build';
   const defaultJSHtmlFile = `${destDir}/assets.js.html`;

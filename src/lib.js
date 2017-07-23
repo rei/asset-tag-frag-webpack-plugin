@@ -2,16 +2,24 @@ const R = require('ramda');
 const path = require('path');
 const fs = require('fs');
 
-module.exports = function (opts) {
+/**
+ * Configures the lib object with the webpack compiler
+ * and the plugin options. Returns object of lib functions.
+ * @param {*} opts
+ * @param {Object} opts.compiler The webpack compiler.
+ * @param {Object} opts.options The plugin options.
+ * @return {Object} The lib functions.
+ */
+const createLib = function createLib(opts) {
   const compiler = opts.compiler;
   const options = opts.options;
   const webpackConf = compiler.options;
   const dest = webpackConf.output.path;
 
   /**
- * Convert obj to string of key=val pairs
- * @param {*} obj
- */
+   * Convert obj to string of key=val pairs
+   * @param {*} obj
+   */
   const objToString = (obj) => {
     const keys = Object.keys(obj);
     return keys.reduce((acc, val) => {
@@ -46,12 +54,6 @@ module.exports = function (opts) {
       tag: `<link ${tagPropsString}>`,
     };
   });
-
-  /**
-   * Helper to look at intermediate results in compose chain.
-   * E.g., R.compose(func1, log, func2)  <-- Logs results from func2.
-   */
-// const log = R.tap(console.log);
 
   const isJSorCSS = fileName => path.extname(fileName) === '.js' || path.extname(fileName) === '.css';
   const getWebpackAssets = compilation => Object.keys(compilation.assets);
@@ -90,11 +92,29 @@ module.exports = function (opts) {
   const writeHtmlTags = writeHtmlTagsCurried(dest, options);
   const createAssetTag = createAssetTagCurried(options);
   const createJsCSSTags = assets => assets.filter(isJSorCSS).map(createAssetTag);
-  const createAssetHTML = R.compose(createJsCSSTags, getWebpackAssets);
-  const writeAssetTags = R.compose(writeHtmlTags, createAssetHTML);
+
+  /**
+   * Helper to look at intermediate results in compose chain.
+   * E.g., R.compose(func1, log, func2)  <-- Logs results from func2.
+   */
+  // const log = R.tap(console.log);
+
+  /**
+   * The main function that:
+   *    Gets webpack built assets -> creates the tags -> writes to file.
+   */
+  const writeAssetTags = R.compose(
+    writeHtmlTags,    //                    write tags to file
+    createJsCSSTags,  //            create tags then ^
+    getWebpackAssets  // get assets then ^
+  );
 
   return {
+
+    // The main function called from AssetTagPlugin.
     writeAssetTags,
+
+    // Utility functions. Exported for testability.
     objToString,
     createAssetTagCurried,
     isJSorCSS,
@@ -102,3 +122,5 @@ module.exports = function (opts) {
     writeHtmlTagsCurried,
   };
 };
+
+module.exports = createLib;
