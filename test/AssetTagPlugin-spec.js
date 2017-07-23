@@ -80,7 +80,7 @@ describe('AssetTagPlugin', () => {
     });
 
     instance.apply(compiler);
-    const content = fs.readFileSync('/test/test.html', 'utf8');
+    const content = fs.readFileSync(`${destDir}/test.html`, 'utf8');
     assert.equal('<script src="app.bundle.js"></script>', content);
   });
 
@@ -105,7 +105,7 @@ describe('AssetTagPlugin', () => {
     instance.apply(compiler);
 
     // Verify js bundle
-    let content = fs.readFileSync('/test/bundle-js.html', 'utf8');
+    let content = fs.readFileSync(`${destDir}/bundle-js.html`, 'utf8');
     assert.equal(content, '<script src="app.bundle.js"></script>');
 
     // Verify css bundle
@@ -134,7 +134,7 @@ describe('AssetTagPlugin', () => {
     });
 
     instance.apply(compiler);
-    const content = fs.readFileSync('/test/test.html', 'utf8');
+    const content = fs.readFileSync(`${destDir}/test.html`, 'utf8');
     assert.equal('<script src="app.bundle.js" id="x"></script>', content);
   });
 
@@ -157,7 +157,7 @@ describe('AssetTagPlugin', () => {
     });
 
     instance.apply(compiler);
-    const content = fs.readFileSync('/test/test.html', 'utf8');
+    const content = fs.readFileSync(`${destDir}/test.html`, 'utf8');
     assert.equal('<link rel="stylesheet" type="text/css" href="app.bundle.css" id="x" class="y">', content);
   });
 
@@ -184,7 +184,7 @@ describe('AssetTagPlugin', () => {
     });
 
     instance.apply(compiler);
-    const content = fs.readFileSync('/test/test.html', 'utf8');
+    const content = fs.readFileSync(`${destDir}/test.html`, 'utf8');
     assert(content.includes('app1.bundle.js'));
     assert(content.includes('app2.bundle.js'));
     assert(content.includes('app3.bundle.js'));
@@ -203,7 +203,7 @@ describe('AssetTagPlugin', () => {
     const instance = new AssetTagPlugin();
 
     instance.apply(compiler);
-    const content = fs.readFileSync('/test/assets.js.html', 'utf8');
+    const content = fs.readFileSync(`${destDir}/assets.js.html`, 'utf8');
     assert(content.includes('app1.bundle.js'));
   });
 });
