@@ -26,7 +26,6 @@
     "istanbul": "^0.4.5",
     "memory-fs": "^0.4.1",
     "mocha": "^3.4.2",
-    "proxyquire": "^1.8.0",
     "ramda": "^0.24.1"
   }
 }
