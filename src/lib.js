@@ -16,7 +16,7 @@ const createLib = function createLib(opts) {
   const webpackConf = compiler.options;
   const dest = webpackConf.output.path;
 
-  // Get the filesystem from webpack (in the case we're using memory-fs)
+  // Get the filesystem from webpack, not require.
   const fs = compilation.compiler.outputFileSystem;
 
   /**
