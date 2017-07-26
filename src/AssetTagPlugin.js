@@ -10,14 +10,15 @@ function AssetTagPlugin(options = {}) {
 }
 
 AssetTagPlugin.prototype.apply = function apply(compiler) {
-  // Initialize the lib with the things it needs..
-  const lib = libFn({
-    compiler,
-    options: this.options,
-  });
-
   // Hook into the emit lifecycle
   compiler.plugin('emit', (compilation, callback) => {
+    // Initialize the lib with the things it needs..
+    const lib = libFn({
+      options: this.options,
+      compiler,
+      compilation,
+    });
+
     // Write the asset tags.
     lib.writeAssetTags(compilation);
     callback();

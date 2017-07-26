@@ -1,6 +1,5 @@
 const R = require('ramda');
 const path = require('path');
-const fs = require('fs');
 
 /**
  * Configures the lib object with the webpack compiler
@@ -12,9 +11,13 @@ const fs = require('fs');
  */
 const createLib = function createLib(opts) {
   const compiler = opts.compiler;
+  const compilation = opts.compilation;
   const options = opts.options;
   const webpackConf = compiler.options;
   const dest = webpackConf.output.path;
+
+  // Get the filesystem from webpack (in the case we're using memory-fs)
+  const fs = compilation.compiler.outputFileSystem;
 
   /**
    * Convert obj to string of key=val pairs
