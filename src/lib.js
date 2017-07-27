@@ -15,9 +15,10 @@ const createLib = function createLib(opts) {
   const options = opts.options;
   const webpackConf = compiler.options;
   const dest = webpackConf.output.path;
+  const isTest = options.test;
 
-  // Get the filesystem from webpack, not require.
-  const fs = compilation.compiler.outputFileSystem;
+  // Get the filesystem from webpack (memory-fs) if in test mode.
+  const fs = isTest ? compilation.compiler.outputFileSystem : require('fs');
 
   /**
    * Convert obj to string of key=val pairs

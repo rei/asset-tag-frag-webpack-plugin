@@ -49,12 +49,16 @@ describe('AssetTagPlugin', () => {
   });
 
   it('contains an apply method', () => {
-    const instance = new AssetTagPlugin();
+    const instance = new AssetTagPlugin({
+      test: true,
+    });
     assert.equal(typeof instance.apply, 'function');
   });
 
   it('creates a fragment with a single js tag', () => {
-    const instance = new AssetTagPlugin();
+    const instance = new AssetTagPlugin({
+      test: true,
+    });
 
     const compiler = createCompilerStub({
       assets: {
@@ -69,7 +73,7 @@ describe('AssetTagPlugin', () => {
   });
 
   it('creates fragments with js and css tags', () => {
-    const instance = new AssetTagPlugin();
+    const instance = new AssetTagPlugin({ test: true });
 
     const compiler = createCompilerStub({
       assets: {
@@ -102,6 +106,7 @@ describe('AssetTagPlugin', () => {
       js: {
         filename: 'js-tags.html',
       },
+      test: true,
     });
 
     instance.apply(compiler);
@@ -123,6 +128,7 @@ describe('AssetTagPlugin', () => {
           id: 'x',
         },
       },
+      test: true,
     });
 
     instance.apply(compiler);
@@ -145,6 +151,7 @@ describe('AssetTagPlugin', () => {
           class: 'y',
         },
       },
+      test: true,
     });
 
     instance.apply(compiler);
@@ -165,7 +172,7 @@ describe('AssetTagPlugin', () => {
     });
 
 
-    const instance = new AssetTagPlugin();
+    const instance = new AssetTagPlugin({ test: true });
 
     instance.apply(compiler);
     const content = compiler.fs.readFileSync(defaultJSHtmlFile, 'utf8');
@@ -173,22 +180,6 @@ describe('AssetTagPlugin', () => {
     assert(content.includes('app2.bundle.js'));
     assert(content.includes('app3.bundle.js'));
     assert(content.includes('app4.bundle.js'));
-  });
-
-  it('defaults correctly if no options passed in', () => {
-    const compiler = createCompilerStub({
-      assets: {
-        'app1.bundle.js': {},
-      },
-      destDir,
-    });
-
-    // No options passed in.
-    const instance = new AssetTagPlugin();
-
-    instance.apply(compiler);
-    const content = compiler.fs.readFileSync(defaultJSHtmlFile, 'utf8');
-    assert(content.includes('app1.bundle.js'));
   });
 
   it('defaults correctly if bad options passed in', () => {
@@ -199,11 +190,31 @@ describe('AssetTagPlugin', () => {
       destDir,
     });
 
-    // No options passed in.
-    const instance = new AssetTagPlugin("hey, these aren't options!");
+    const instance = new AssetTagPlugin({
+      test: true,
+      js: 2,
+      css: {
+        x: 4,
+      },
+    });
 
     instance.apply(compiler);
     const content = compiler.fs.readFileSync(defaultJSHtmlFile, 'utf8');
     assert(content.includes('app1.bundle.js'));
+  });
+
+  it('uses node fs if not in test mode', () => {
+    const compiler = createCompilerStub({
+      assets: {
+        'app1.bundle.js': {},
+      },
+      destDir,
+    });
+
+    const instance = new AssetTagPlugin();
+
+    assert.throws(() => {
+      instance.apply(compiler);
+    }, /Error: ENOENT/);
   });
 });
