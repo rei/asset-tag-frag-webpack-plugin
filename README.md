@@ -9,16 +9,29 @@ A Webpack plugin that generates HTML fragments for your build assets.
 # Usage
 
 ## Basic Usage
-    // webpack.conf.js
-    const AssetTagPlugin = require('asset-tag-frag-webpack-plugin');
-    
-    ...
-    {
-      ..
-      plugins: [
-        new AssetTagPlugin()
-      ]
-    }
+
+```javascript
+// webpack.conf.js
+const AssetTagPlugin = require('asset-tag-frag-webpack-plugin');
+
+module.exports = 
+  {
+    entry: {
+      app: '/path/to/app'
+    },
+    output: {
+      path: '/path/to/output',
+      name: [name].bundle.js
+    } 
+  },
+  ...
+  {
+    ..
+    plugins: [
+      new AssetTagPlugin()
+    ]
+  }
+```
 
 This will write your js and css asset tags to 2 files:
 
