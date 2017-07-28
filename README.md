@@ -44,42 +44,49 @@ You may pass an options object to the plugin to customize the filenames you want
 
 NOTE: for now, all tag attributes you specify are included in corresponding js/css tags.
   
-    {
-      js: {
-        filename: {String},
-        tagProps: {Object},
-      },
-      css: {
-        filename: {String},
-        tagProps: {Object}
-      }
+```javascript
+  new AssetPlugin({
+    js: {
+      filename: {String},
+      tagProps: {Object},
+    },
+    css: {
+      filename: {String},
+      tagProps: {Object}
     }
+  })
+```
 
 # Example
 
-    new AssetTagPlugin({
-      js: {
-        filename: "js-assets.html",
-        tagProps: {
-          async: true
-        },
-      },
-      css: {
-        filename: "css-assets.html",
-        tagProps: {
-          id: "css-app-bundle"
-        }
-      }
-    })
+```javascript
+new AssetTagPlugin({
+  js: {
+    filename: "js-assets.html",
+    tagProps: {
+      async: true
+    },
+  },
+  css: {
+    filename: "css-assets.html",
+    tagProps: {
+      id: "css-app-bundle"
+    }
+  }
+})
+```
 
 This would generate 2 files in your output directory:
 
-    // js-assets.html
-    <script src="app.bundle.js" async=true></script>
+```html
+<!-- js-assets.html -->
+<script src="app.bundle.js" async=true></script>
+```
 
-    // css-assets.html
-    <link href="app.bundle.css" id="css-app-bundle">
-
+```html
+<!--css-assets.html -->
+<link href="app.bundle.css" id="css-app-bundle">
+``` 
 # Assumptions
 
 - This assumes you are using webpack ^3.0.0. It has not been tested with older versions.
