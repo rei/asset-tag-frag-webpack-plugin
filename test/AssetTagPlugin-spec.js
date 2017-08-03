@@ -217,4 +217,27 @@ describe('AssetTagPlugin', () => {
       instance.apply(compiler);
     }, /Error: ENOENT/);
   });
+
+  it('deletes html fragments in between builds', () => {
+    const instance = new AssetTagPlugin({
+      test: true,
+    });
+
+    const compiler = createCompilerStub({
+      assets: {
+        'app.bundle.js': {},
+      },
+      destDir,
+    });
+
+    // Compile once
+    instance.apply(compiler);
+    let content = compiler.fs.readFileSync(defaultJSHtmlFile, 'utf8');
+    assert.equal('<script src="app.bundle.js"></script>', content);
+
+    // Compile twice
+    instance.apply(compiler);
+    content = compiler.fs.readFileSync(defaultJSHtmlFile, 'utf8');
+    assert.equal('<script src="app.bundle.js"></script>', content);
+  });
 });

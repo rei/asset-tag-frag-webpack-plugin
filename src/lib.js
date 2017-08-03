@@ -68,14 +68,23 @@ const createLib = function createLib(opts) {
   const getWebpackAssets = compilation => Object.keys(compilation.assets);
 
   /**
+   * Get fully resolved path to html fragments.
+   * @param {*} tagMeta
+   * @param {*} destDir
+   */
+  const getDestinationPath = function (tagMeta, destDir) {
+    const ext = tagMeta.ext.slice(1); // pull off the leading '.'
+    const filename = R.pathOr(`assets.${ext}.html`, [ext, 'filename'], options);
+    return path.resolve(destDir, filename);
+  };
+
+  /**
    * Writes the tag to destDir.
    * @param {Object} tagMeta
    * @param {String} destDir
    */
   const writeTags = function (tagMeta, destDir) {
-    const ext = tagMeta.ext.slice(1); // pull off the leading '.'
-    const filename = R.pathOr(`assets.${ext}.html`, [ext, 'filename'], options);
-    const destinationPath = path.resolve(destDir, filename);
+    const destinationPath = getDestinationPath(tagMeta, destDir);
 
     // if exists, append, otherwise create
     if (fs.existsSync(destinationPath)) {
@@ -88,6 +97,7 @@ const createLib = function createLib(opts) {
     }
   };
 
+
   /**
    * Write array of html tags to the dest directory.
    * @param {Array} assetHTMLTags
@@ -97,6 +107,17 @@ const createLib = function createLib(opts) {
       writeTags(tagMeta, destDir, assetHTMLTags);
     });
   });
+
+  /**
+   * Delete all HTML fragments in build dir.
+   */
+  const deletePreviousHtmlTags = () => {
+    fs.readdirSync(dest).forEach((file) => {
+      if (path.extname(file) === '.html') {
+        fs.unlinkSync(path.resolve(dest, file));
+      }
+    });
+  };
 
   const writeHtmlTags = writeHtmlTagsCurried(dest, options);
   const createAssetTag = createAssetTagCurried(options);
@@ -113,7 +134,8 @@ const createLib = function createLib(opts) {
    *    Gets webpack built assets -> creates the tags -> writes to file.
    */
   const writeAssetTags = R.compose(
-    writeHtmlTags,    //                    write tags to file
+    writeHtmlTags,    //                       write tags to html fragments.
+    R.tap(deletePreviousHtmlTags), //    delete previous html fragments ^
     createJsCSSTags,  //            create tags then ^
     getWebpackAssets  // get assets then ^
   );
