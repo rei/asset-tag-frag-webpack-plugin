@@ -5,17 +5,13 @@ const path = require('path');
  * Configures the lib object with the webpack compiler
  * and the plugin options. Returns object of lib functions.
  * @param {*} opts
- * @param {Object} opts.compiler The webpack compiler.
  * @param {Object} opts.options The plugin options.
+ * @param {Object} opts.compilation The webpack compilation object.
  * @return {Object} The lib functions.
  */
 const createLib = function createLib(opts) {
-  const compiler = opts.compiler;
-  const compilation = opts.compilation;
   const options = opts.options;
-  const webpackConf = compiler.options;
-  const dest = webpackConf.output.path;
-  const isTest = options.test;
+  const compilation = opts.compilation;
 
   /**
    * Convert obj to string of key=val pairs
@@ -31,18 +27,16 @@ const createLib = function createLib(opts) {
   };
 
   // Helpers fns to get tagProps data.
-  const getTagProps = R.curry((type, opts) => R.pathOr({}, [type, 'tagProps'], opts));
-  const getJsTagProps = getTagProps('js');
-  const getCssTagProps = getTagProps('css');
+  const getTagProps = type => R.pathOr({}, [type, 'tagProps'], options);
 
-/**
-   * Creates the snippet of html needed for a built asset.
-   * @param {*} assetName The filename of the js/css asset.
-   */
-  const createAssetTagCurried = R.curry((opts, assetName) => {
+  /**
+     * Creates the snippet of html needed for a built asset.
+     * @param {*} assetName The filename of the js/css asset.
+     */
+  const createAssetTag = (assetName) => {
     const ext = path.extname(assetName);
-    const tagPropsJs = getJsTagProps(opts);
-    const tagPropsCss = getCssTagProps(opts);
+    const tagPropsJs = getTagProps('js');
+    const tagPropsCss = getTagProps('css');
 
     if (ext === '.js') {
       const tagPropsString = `src="${assetName}" ${objToString(tagPropsJs)}`.trim();
@@ -59,28 +53,63 @@ const createLib = function createLib(opts) {
       ext,
       tag: `<link ${tagPropsString}>`,
     };
-  });
+  };
 
-  const isJSorCSS = fileName => path.extname(fileName) === '.js' || path.extname(fileName) === '.css';
-  const getWebpackAssets = compilation => Object.keys(compilation.assets);  
-  const createAssetTag = createAssetTagCurried(options);
-  const createJsCSSTags = assets => assets.filter(isJSorCSS).map(createAssetTag);
+  const getWebpackAssets = () => Object.keys(compilation.assets);
+  const isJS = fileName => path.extname(fileName) === '.js';
+  const isCSS = fileName => path.extname(fileName) === '.css';
+  const createJsTags = assets => assets.filter(isJS).map(createAssetTag);
+  const createCssTags = assets => assets.filter(isCSS).map(createAssetTag);
 
   /**
-   * Helper to look at intermediate results in compose chain.
-   * E.g., R.compose(func1, log, func2)  <-- Logs results from func2.
+   * Concatenate asset html tags into a single string.
+   * @param {*} htmlFragments 
+   
    */
-  // const log = R.tap(console.log);
+  const concatAssetTypes = htmlFragments => htmlFragments
+    .reduce((acc, val) => {
+      let newAcc = acc;
+      newAcc += `${val.tag}\n`;
+      return newAcc;
+    }, '').trim();
 
-  const addAssetFragments = R.compose(
-    createJsCSSTags,  //            create tags then ^
-    getWebpackAssets  // get assets then ^
+  const filename = ext => R.pathOr(`assets.${ext}.html`, [ext, 'filename'], options);
+
+  const createWebpackAsset = R.curry((type, source) => {
+    const asset = {};
+    asset[filename(type, options)] = {
+      source: () => source,
+      size: () => 1,
+    };
+    return asset;
+  });
+
+  /**
+   * Creates the webpack asset object for js tag fragment.
+   */
+  const createWebpackAssetJS = R.compose(
+    createWebpackAsset('js'),
+    concatAssetTypes,
+    createJsTags,
+    getWebpackAssets
   );
 
+  /**
+   * Creates the webpack asset object for css tag fragment.
+   */
+  const createWebpackAssetCSS = R.compose(
+    createWebpackAsset('css'),
+    concatAssetTypes,
+    createCssTags,
+    getWebpackAssets
+  );
+
+  /**
+   * The public lib functions.
+   */
   return {
-    addAssetFragments,
-    isJSorCSS,
-    getWebpackAssets,
+    createWebpackAssetJS,
+    createWebpackAssetCSS,
   };
 };
 
