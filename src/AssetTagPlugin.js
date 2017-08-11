@@ -4,11 +4,11 @@
  */
 
 const libFn = require('./lib');
+const R = require('ramda');
+
 
 function AssetTagPlugin(options = {}) {
   this.options = options;
-
-  //options.test = true;
 }
 
 AssetTagPlugin.prototype.apply = function apply(compiler) {
@@ -22,32 +22,39 @@ AssetTagPlugin.prototype.apply = function apply(compiler) {
     });
 
     // Add asset fragments to compilation.
-    const htmlFragments = lib.addAssetFragments(compilation);
-    
-    const jsTag = htmlFragments
-      .filter(fragment => fragment.ext === '.js')
-      .reduce((acc, val, index) => {
-        acc += `${val.tag}\n`
-        return acc;
-      }, '').trim();
+    const htmlTags = lib.addAssetFragments(compilation);
 
-    const cssTag = htmlFragments
-      .filter(fragment => fragment.ext === '.css')
-      .reduce((acc, val, index) => {
-        acc += `${val.tag}\n`
-        return acc;
-      }, '').trim();
-    
-    compilation.assets['assets.js.html'] = {
-      source: () => jsTag,
-      size: () => 1
+    /**
+     * Concatenate asset html tags into a single string.
+     * @param {*} htmlFragments 
+     * @param {*} ext 
+     */
+    const concatAssetTypes = (htmlFragments, ext) => {
+      return htmlFragments
+        .filter(fragment => fragment.ext === ext) // only of type ext.
+        .reduce((acc, val, index) => {  // put the html tags in a single string.
+          acc += `${val.tag}\n`
+          return acc;
+        }, '').trim();
+    };
+    const jsTag = concatAssetTypes(htmlTags, '.js');
+    const cssTag = concatAssetTypes(htmlTags, '.css');
+    const filename = (ext, options) => R.pathOr(`assets.${ext}.html`, [ext, 'filename'], options);
+
+    if (jsTag) {
+      compilation.assets[filename('js', this.options)] = {
+        source: () => jsTag,
+        size: () => 1
+      }
     }
 
-    compilation.assets['assets.css.html'] = {
-      source: () => cssTag,
-      size: () => 1
+    if (cssTag) {
+      compilation.assets[filename('css', this.options)] = {
+        source: () => cssTag,
+        size: () => 1
+      }
     }
-    
+
     callback();
   });
 };
