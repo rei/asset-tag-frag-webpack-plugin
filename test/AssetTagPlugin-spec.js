@@ -12,8 +12,7 @@ const createCompilerStub = function createCompilerStub(options) {
   // Stub compilation
   const compilation = {
     assets: options.assets,
-    compiler: {
-      
+    compiler: {      
     },
   };
 
@@ -47,7 +46,7 @@ describe('AssetTagPlugin', () => {
     assert.equal(typeof instance.apply, 'function');
   });
 
-  it('adds js, css asset fragment tags to compilation', () => {
+  it('adds js and css asset fragment tags to compilation', () => {
     const instance = new AssetTagPlugin();
 
     // Results of webpack compile.
@@ -67,7 +66,7 @@ describe('AssetTagPlugin', () => {
     // Webpack call to plugin's apply
     instance.apply(compiler);
 
-    const expectedJs = [
+    const expectedJS = [
       `<script src="app1.bundle.js"></script>`,
       `<script src="app2.bundle.js"></script>`
     ].join("\n");
@@ -78,6 +77,36 @@ describe('AssetTagPlugin', () => {
     ].join("\n");
 
     assert.equal(compilation.assets[defaultCSSHtmlFile].source(), expectedCss);
+    assert.equal(compilation.assets[defaultCSSHtmlFile].size(), 1);
+    
+    assert.equal(compilation.assets[defaultJSHtmlFile].source(), expectedJS);
+    assert.equal(compilation.assets[defaultJSHtmlFile].size(), 1);
+
+  });
+
+  it('adds css (only) asset fragment tags to compilation', () => {
+    const instance = new AssetTagPlugin();
+
+    // Results of webpack compile.
+    let compilation = {
+      assets: {
+        'app1.bundle.css': {},
+      },
+    };
+
+    const compiler = createCompilerStub({
+      compilation: compilation
+    });
+
+    // Webpack call to plugin's apply
+    instance.apply(compiler);
+
+    const expectedCss = [
+      `<link rel="stylesheet" type="text/css" href="app1.bundle.css">`,
+    ].join("\n");
+
+    assert.equal(compilation.assets[defaultCSSHtmlFile].source(), expectedCss);
+    assert.equal(compilation.assets[defaultCSSHtmlFile].size(), 1);
   });
 
   it('allows renaming of fragment file', () => {

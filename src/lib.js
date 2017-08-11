@@ -17,11 +17,6 @@ const createLib = function createLib(opts) {
   const dest = webpackConf.output.path;
   const isTest = options.test;
 
-  //const fs = isTest ? compilation.compiler.outputFileSystem : require('fs');
-  //const fs = compilation.compiler.outputFileSystem;
-
-  //console.log(fs.constructor.name)
-
   /**
    * Convert obj to string of key=val pairs
    * @param {*} obj
@@ -67,67 +62,7 @@ const createLib = function createLib(opts) {
   });
 
   const isJSorCSS = fileName => path.extname(fileName) === '.js' || path.extname(fileName) === '.css';
-  const getWebpackAssets = compilation => Object.keys(compilation.assets);
-
-  /**
-   * Get fully resolved path to html fragments.
-   * @param {*} tagMeta
-   * @param {*} destDir
-   */
-  const getDestinationPath = function (tagMeta, destDir) {
-    const ext = tagMeta.ext.slice(1); // pull off the leading '.'
-    const filename = R.pathOr(`assets.${ext}.html`, [ext, 'filename'], options);
-    return path.resolve(destDir, filename);
-  };
-
-  /**
-   * Writes the tag to destDir.
-   * @param {Object} tagMeta
-   * @param {String} destDir
-   */
-  const writeTags = function (tagMeta, destDir) {
-    const destinationPath = getDestinationPath(tagMeta, destDir);
-
-    // if exists, append, otherwise create
-    if (fs.existsSync(destinationPath)) {
-      // appendFileSync doesn't exist in memory-fs, improvise.
-      let content = fs.readFileSync(destinationPath, 'utf8');
-      content += `\r\n${tagMeta.tag}`;
-      fs.writeFileSync(destinationPath, content);
-    } else {
-      fs.writeFileSync(destinationPath, tagMeta.tag);
-    }
-  };
-
-
-  /**
-   * Write array of html tags to the dest directory.
-   * @param {Array} assetHTMLTags
-   */
-  const writeHtmlTagsCurried = R.curry((destDir, options, assetHTMLTags) => {
-    assetHTMLTags.forEach((tagMeta) => {
-      writeTags(tagMeta, destDir, assetHTMLTags);
-    });
-  });
-
-  /**
-   * Delete all HTML fragments in build dir.
-   */
-  // const deletePreviousHtmlTags = () => {
-  //   //try {
-  //     //fs.statSync(dest);
-  //     fs.readdirSync(dest).forEach((file) => {
-  //     if (path.extname(file) === '.html') {
-  //       fs.unlinkSync(path.resolve(dest, file));
-  //     }
-  //   });
-  //   //} 
-  // // catch (e) {
-  // //     console.warn('Destination does not exist.');
-  // //   }
-  // };
-
-  const writeHtmlTags = writeHtmlTagsCurried(dest, options);
+  const getWebpackAssets = compilation => Object.keys(compilation.assets);  
   const createAssetTag = createAssetTagCurried(options);
   const createJsCSSTags = assets => assets.filter(isJSorCSS).map(createAssetTag);
 
@@ -137,44 +72,15 @@ const createLib = function createLib(opts) {
    */
   // const log = R.tap(console.log);
 
-  /**
-   * The main function that:
-   *    Gets webpack built assets -> creates the tags -> writes to file.
-   */
-  const writeAssetTags = R.compose(
-    //writeHtmlTags,    //                       write tags to html fragments.
-    //R.tap(deletePreviousHtmlTags), //    delete previous html fragments ^
-    createJsCSSTags,  //            create tags then ^
-    getWebpackAssets  // get assets then ^
-  );
-
   const addAssetFragments = R.compose(
     createJsCSSTags,  //            create tags then ^
     getWebpackAssets  // get assets then ^
   );
 
-  /* 
-    {
-      app.bundle.js: {},
-      app.bundle.css: {}
-    }
-  
-  */
-
-
   return {
-
-    // The main function called from AssetTagPlugin.
-    writeAssetTags,
-
     addAssetFragments,
-
-    // Utility functions. Exported for testability.
-    objToString,
-    createAssetTagCurried,
     isJSorCSS,
     getWebpackAssets,
-    writeHtmlTagsCurried,
   };
 };
 
