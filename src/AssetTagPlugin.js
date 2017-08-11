@@ -7,6 +7,8 @@ const libFn = require('./lib');
 
 function AssetTagPlugin(options = {}) {
   this.options = options;
+
+  //options.test = true;
 }
 
 AssetTagPlugin.prototype.apply = function apply(compiler) {
@@ -19,8 +21,33 @@ AssetTagPlugin.prototype.apply = function apply(compiler) {
       compilation,
     });
 
-    // Write the asset tags.
-    lib.writeAssetTags(compilation);
+    // Add asset fragments to compilation.
+    const htmlFragments = lib.addAssetFragments(compilation);
+    
+    const jsTag = htmlFragments
+      .filter(fragment => fragment.ext === '.js')
+      .reduce((acc, val, index) => {
+        acc += `${val.tag}\n`
+        return acc;
+      }, '').trim();
+
+    const cssTag = htmlFragments
+      .filter(fragment => fragment.ext === '.css')
+      .reduce((acc, val, index) => {
+        acc += `${val.tag}\n`
+        return acc;
+      }, '').trim();
+    
+    compilation.assets['assets.js.html'] = {
+      source: () => jsTag,
+      size: () => 1
+    }
+
+    compilation.assets['assets.css.html'] = {
+      source: () => cssTag,
+      size: () => 1
+    }
+    
     callback();
   });
 };

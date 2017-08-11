@@ -17,8 +17,10 @@ const createLib = function createLib(opts) {
   const dest = webpackConf.output.path;
   const isTest = options.test;
 
-  // Get the filesystem from webpack (memory-fs) if in test mode.
-  const fs = isTest ? compilation.compiler.outputFileSystem : require('fs');
+  //const fs = isTest ? compilation.compiler.outputFileSystem : require('fs');
+  //const fs = compilation.compiler.outputFileSystem;
+
+  //console.log(fs.constructor.name)
 
   /**
    * Convert obj to string of key=val pairs
@@ -111,13 +113,19 @@ const createLib = function createLib(opts) {
   /**
    * Delete all HTML fragments in build dir.
    */
-  const deletePreviousHtmlTags = () => {
-    fs.readdirSync(dest).forEach((file) => {
-      if (path.extname(file) === '.html') {
-        fs.unlinkSync(path.resolve(dest, file));
-      }
-    });
-  };
+  // const deletePreviousHtmlTags = () => {
+  //   //try {
+  //     //fs.statSync(dest);
+  //     fs.readdirSync(dest).forEach((file) => {
+  //     if (path.extname(file) === '.html') {
+  //       fs.unlinkSync(path.resolve(dest, file));
+  //     }
+  //   });
+  //   //} 
+  // // catch (e) {
+  // //     console.warn('Destination does not exist.');
+  // //   }
+  // };
 
   const writeHtmlTags = writeHtmlTagsCurried(dest, options);
   const createAssetTag = createAssetTagCurried(options);
@@ -134,16 +142,32 @@ const createLib = function createLib(opts) {
    *    Gets webpack built assets -> creates the tags -> writes to file.
    */
   const writeAssetTags = R.compose(
-    writeHtmlTags,    //                       write tags to html fragments.
-    R.tap(deletePreviousHtmlTags), //    delete previous html fragments ^
+    //writeHtmlTags,    //                       write tags to html fragments.
+    //R.tap(deletePreviousHtmlTags), //    delete previous html fragments ^
     createJsCSSTags,  //            create tags then ^
     getWebpackAssets  // get assets then ^
   );
+
+  const addAssetFragments = R.compose(
+    createJsCSSTags,  //            create tags then ^
+    getWebpackAssets  // get assets then ^
+  );
+
+  /* 
+    {
+      app.bundle.js: {},
+      app.bundle.css: {}
+    }
+  
+  */
+
 
   return {
 
     // The main function called from AssetTagPlugin.
     writeAssetTags,
+
+    addAssetFragments,
 
     // Utility functions. Exported for testability.
     objToString,
