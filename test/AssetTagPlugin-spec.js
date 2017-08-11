@@ -5,7 +5,6 @@ const AssetTagPlugin = require('../src/AssetTagPlugin');
    * Test helper to create a wepback compiler stub.
    * @param {Object} options Options object to configure compiler stub.
    * @param {Object} options.assets The object of compiled assets from WP.
-   * @param {String} options.destDir The output directory from WP conf.
    */
 const createCompilerStub = function createCompilerStub(options) {
   
