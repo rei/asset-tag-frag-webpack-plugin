@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 /**
  * Webpack plugin to generate an HTML fragment containing the built js/css assets.
  * See README.md for usage and examples.
@@ -9,18 +11,22 @@ function AssetTagPlugin(options = {}) {
   this.options = options;
 }
 
+// Hook into the emit lifecycle
 AssetTagPlugin.prototype.apply = function apply(compiler) {
-  // Hook into the emit lifecycle
   compiler.plugin('emit', (compilation, callback) => {
-    // Initialize the lib with the things it needs..
+    // Pass options to lib.
     const lib = libFn({
       options: this.options,
-      compiler,
       compilation,
     });
 
-    // Write the asset tags.
-    lib.writeAssetTags(compilation);
+    // Add new html fragment assets to the compilation.
+    compilation.assets = Object.assign(
+      compilation.assets,
+      lib.createWebpackAssetJS(),
+      lib.createWebpackAssetCSS()
+    );
+
     callback();
   });
 };

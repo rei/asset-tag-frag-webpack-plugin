@@ -1,25 +1,17 @@
 const assert = require('assert');
-const FS = require('memory-fs');
 const AssetTagPlugin = require('../src/AssetTagPlugin');
 
 /**
    * Test helper to create a wepback compiler stub.
    * @param {Object} options Options object to configure compiler stub.
    * @param {Object} options.assets The object of compiled assets from WP.
-   * @param {String} options.destDir The output directory from WP conf.
    */
 const createCompilerStub = function createCompilerStub(options) {
-  // Create a new file system.
-  const fs = new FS();
-
-  // Destination directory
-  fs.mkdirpSync(options.destDir);
-
+  
   // Stub compilation
   const compilation = {
     assets: options.assets,
-    compiler: {
-      outputFileSystem: fs,
+    compiler: {      
     },
   };
 
@@ -33,16 +25,14 @@ const createCompilerStub = function createCompilerStub(options) {
     },
 
     plugin(event, callback) {
-      callback(compilation, () => {});
-    },
-    fs,
+      callback(options.compilation, () => {});
+    }
   };
 };
 
 describe('AssetTagPlugin', () => {
-  const destDir = '/build';
-  const defaultJSHtmlFile = `${destDir}/assets.js.html`;
-  const defaultCSSHtmlFile = `${destDir}/assets.css.html`;
+  const defaultJSHtmlFile = `assets.js.html`;
+  const defaultCSSHtmlFile = `assets.css.html`;
 
   it('is a function', () => {
     assert.equal(typeof AssetTagPlugin, 'function');
@@ -55,189 +45,153 @@ describe('AssetTagPlugin', () => {
     assert.equal(typeof instance.apply, 'function');
   });
 
-  it('creates a fragment with a single js tag', () => {
-    const instance = new AssetTagPlugin({
-      test: true,
-    });
+  it('adds js and css asset fragment tags to compilation', () => {
+    const instance = new AssetTagPlugin();
+
+    // Results of webpack compile.
+    let compilation = {
+      assets: {
+        'app1.bundle.js': {},
+        'app2.bundle.js': {},
+        'app1.bundle.css': {},
+        'app2.bundle.css': {}
+      },
+    };
 
     const compiler = createCompilerStub({
-      assets: {
-        'app.bundle.js': {},
-      },
-      destDir,
+      compilation: compilation
     });
 
+    // Webpack call to plugin's apply
     instance.apply(compiler);
-    const content = compiler.fs.readFileSync(defaultJSHtmlFile, 'utf8');
-    assert.equal('<script src="app.bundle.js"></script>', content);
+
+    const expectedJS = [
+      `<script src="app1.bundle.js"></script>`,
+      `<script src="app2.bundle.js"></script>`
+    ].join("\n");
+
+    const expectedCss = [
+      `<link rel="stylesheet" type="text/css" href="app1.bundle.css">`,
+      `<link rel="stylesheet" type="text/css" href="app2.bundle.css">`
+    ].join("\n");
+
+    assert.equal(compilation.assets[defaultCSSHtmlFile].source(), expectedCss);
+    assert.equal(compilation.assets[defaultCSSHtmlFile].size(), 1);
+    
+    assert.equal(compilation.assets[defaultJSHtmlFile].source(), expectedJS);
+    assert.equal(compilation.assets[defaultJSHtmlFile].size(), 1);
+
   });
 
-  it('creates fragments with js and css tags', () => {
-    const instance = new AssetTagPlugin({ test: true });
+  it('adds css (only) asset fragment tags to compilation', () => {
+    const instance = new AssetTagPlugin();
+
+    // Results of webpack compile.
+    let compilation = {
+      assets: {
+        'app1.bundle.css': {},
+      },
+    };
 
     const compiler = createCompilerStub({
-      assets: {
-        'app.bundle.js': {},
-        'app.bundle.css': {},
-      },
-      destDir,
+      compilation: compilation
     });
 
+    // Webpack call to plugin's apply
     instance.apply(compiler);
 
-    // Verify js bundle
-    let content = compiler.fs.readFileSync(defaultJSHtmlFile, 'utf8');
-    assert.equal(content, '<script src="app.bundle.js"></script>');
+    const expectedCss = [
+      `<link rel="stylesheet" type="text/css" href="app1.bundle.css">`,
+    ].join("\n");
 
-    // Verify css bundle
-    content = compiler.fs.readFileSync(defaultCSSHtmlFile, 'utf8');
-    assert.equal(content, '<link rel="stylesheet" type="text/css" href="app.bundle.css">');
+    assert.equal(compilation.assets[defaultCSSHtmlFile].source(), expectedCss);
+    assert.equal(compilation.assets[defaultCSSHtmlFile].size(), 1);
   });
 
   it('allows renaming of fragment file', () => {
-    const compiler = createCompilerStub({
-      assets: {
-        'app.bundle.js': {},
-      },
-      destDir,
-    });
-
     const instance = new AssetTagPlugin({
       js: {
         filename: 'js-tags.html',
       },
-      test: true,
     });
 
+    // Results of webpack compile.
+    let compilation = {
+      assets: {
+        'app1.bundle.js': {},
+      },
+    };
+
+    const compiler = createCompilerStub({
+      compilation: compilation
+    });
+
+    // Webpack call to plugin's apply
     instance.apply(compiler);
-    const content = compiler.fs.readFileSync(`${destDir}/js-tags.html`, 'utf8');
-    assert.equal('<script src="app.bundle.js"></script>', content);
+
+    const expected = [
+      `<script src="app1.bundle.js"></script>`,
+    ].join("\n");
+
+    assert.equal(compilation.assets['js-tags.html'].source(), expected);
   });
 
   it('creates js tag with attributes', () => {
-    const compiler = createCompilerStub({
-      assets: {
-        'app.bundle.js': {},
-      },
-      destDir,
-    });
-
     const instance = new AssetTagPlugin({
       js: {
         tagProps: {
           id: 'x',
         },
       },
-      test: true,
     });
 
-    instance.apply(compiler);
-    const content = compiler.fs.readFileSync(defaultJSHtmlFile, 'utf8');
-    assert.equal('<script src="app.bundle.js" id="x"></script>', content);
-  });
-
-  it('creates css tag with attributes', () => {
-    const compiler = createCompilerStub({
-      assets: {
-        'app.bundle.css': {},
-      },
-      destDir,
-    });
-
-    const instance = new AssetTagPlugin({
-      css: {
-        tagProps: {
-          id: 'x',
-          class: 'y',
-        },
-      },
-      test: true,
-    });
-
-    instance.apply(compiler);
-    const content = compiler.fs.readFileSync(defaultCSSHtmlFile, 'utf8');
-    assert.equal('<link rel="stylesheet" type="text/css" href="app.bundle.css" id="x" class="y">', content);
-  });
-
-  it('creates fragment with multiple assets', () => {
-    // Stub compilation
-    const compiler = createCompilerStub({
+    // Results of webpack compile.
+    let compilation = {
       assets: {
         'app1.bundle.js': {},
-        'app2.bundle.js': {},
-        'app3.bundle.js': {},
-        'app4.bundle.js': {},
       },
-      destDir,
+    };
+
+    const compiler = createCompilerStub({
+      compilation: compilation
     });
 
-
-    const instance = new AssetTagPlugin({ test: true });
-
+    // Webpack call to plugin's apply
     instance.apply(compiler);
-    const content = compiler.fs.readFileSync(defaultJSHtmlFile, 'utf8');
-    assert(content.includes('app1.bundle.js'));
-    assert(content.includes('app2.bundle.js'));
-    assert(content.includes('app3.bundle.js'));
-    assert(content.includes('app4.bundle.js'));
+
+    const expected = [
+      `<script src="app1.bundle.js" id="x"></script>`,
+    ].join("\n");
+
+    assert.equal(compilation.assets[defaultJSHtmlFile].source(), expected);
   });
 
   it('defaults correctly if bad options passed in', () => {
-    const compiler = createCompilerStub({
-      assets: {
-        'app1.bundle.js': {},
-      },
-      destDir,
-    });
-
     const instance = new AssetTagPlugin({
-      test: true,
       js: 2,
       css: {
         x: 4,
       },
     });
 
-    instance.apply(compiler);
-    const content = compiler.fs.readFileSync(defaultJSHtmlFile, 'utf8');
-    assert(content.includes('app1.bundle.js'));
-  });
-
-  it('uses node fs if not in test mode', () => {
-    const compiler = createCompilerStub({
+    // Results of webpack compile.
+    let compilation = {
       assets: {
         'app1.bundle.js': {},
       },
-      destDir,
-    });
-
-    const instance = new AssetTagPlugin();
-
-    assert.throws(() => {
-      instance.apply(compiler);
-    }, /Error: ENOENT/);
-  });
-
-  it('deletes html fragments in between builds', () => {
-    const instance = new AssetTagPlugin({
-      test: true,
-    });
+    };
 
     const compiler = createCompilerStub({
-      assets: {
-        'app.bundle.js': {},
-      },
-      destDir,
+      compilation: compilation
     });
 
-    // Compile once
+    // Webpack call to plugin's apply
     instance.apply(compiler);
-    let content = compiler.fs.readFileSync(defaultJSHtmlFile, 'utf8');
-    assert.equal('<script src="app.bundle.js"></script>', content);
 
-    // Compile twice
-    instance.apply(compiler);
-    content = compiler.fs.readFileSync(defaultJSHtmlFile, 'utf8');
-    assert.equal('<script src="app.bundle.js"></script>', content);
+    const expected = [
+      `<script src="app1.bundle.js"></script>`,
+    ].join("\n");
+
+    assert.equal(compilation.assets[defaultJSHtmlFile].source(), expected);
   });
 });

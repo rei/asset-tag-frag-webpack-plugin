@@ -1,11 +1,12 @@
 {
   "name": "asset-tag-frag-webpack-plugin",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Generate HTML fragment of asset tags.",
   "main": "src/AssetTagPlugin.js",
   "scripts": {
     "test": "mocha",
-    "cover": "istanbul cover node_modules/mocha/bin/_mocha"
+    "cover": "istanbul cover node_modules/mocha/bin/_mocha",
+    "lint": "./node_modules/eslint/bin/eslint.js src"
   },
   "repository": {
     "type": "git",
@@ -27,5 +28,10 @@
     "memory-fs": "^0.4.1",
     "mocha": "^3.4.2",
     "ramda": "^0.24.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.4.1",
+    "eslint-config-airbnb-base": "^11.3.1",
+    "eslint-plugin-import": "^2.7.0"
   }
 }
