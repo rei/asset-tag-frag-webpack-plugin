@@ -47,12 +47,16 @@ NOTE: for now, all tag attributes you specify are included in corresponding js/c
 ```javascript
   new AssetPlugin({
     js: {
-      filename: {String},
-      tagProps: {Object},
+      filename:    {String},  // name of assets fragment file
+      prependPath: {String},  // path to prepend
+      tagProps:    {Object},  // additional tag properties
+      
     },
     css: {
-      filename: {String},
-      tagProps: {Object}
+      filename:    {String},
+      prependPath: {String},
+      tagProps:    {Object},
+      
     }
   })
 ```
@@ -63,12 +67,14 @@ NOTE: for now, all tag attributes you specify are included in corresponding js/c
 new AssetTagPlugin({
   js: {
     filename: "js-assets.html",
+    prependPath: "/static/",
     tagProps: {
       async: true
     },
   },
   css: {
     filename: "css-assets.html",
+    prependPath: "/static/",
     tagProps: {
       id: "css-app-bundle"
     }
@@ -80,12 +86,12 @@ This would generate 2 files in your output directory:
 
 ```html
 <!-- js-assets.html -->
-<script src="app.bundle.js" async=true></script>
+<script src="/static/app.bundle.js" async=true></script>
 ```
 
 ```html
 <!--css-assets.html -->
-<link href="app.bundle.css" id="css-app-bundle">
+<link href="/static/app.bundle.css" id="css-app-bundle">
 ``` 
 # Assumptions
 
