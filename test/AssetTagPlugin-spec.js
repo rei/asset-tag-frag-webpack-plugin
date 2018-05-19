@@ -7,12 +7,6 @@ const AssetTagPlugin = require('../src/AssetTagPlugin');
  * @param {Object} options.assets The object of compiled assets from WP.
  */
 const createCompilerStub = function createCompilerStub(options) {
-  // Stub compilation
-  const compilation = {
-    assets: options.assets,
-    compiler: {},
-  };
-
   // Return the compiler object.
   return {
     // The passed in wp conf.
@@ -22,8 +16,12 @@ const createCompilerStub = function createCompilerStub(options) {
       },
     },
 
-    plugin(event, callback) {
-      callback(options.compilation, () => {});
+    hooks: {
+      emit: {
+        tap: (pluginName, cb) => {
+          cb(options.compilation, () => {});
+        }
+      }
     },
   };
 };
