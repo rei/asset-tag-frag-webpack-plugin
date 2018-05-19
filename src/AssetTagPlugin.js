@@ -13,7 +13,9 @@ function AssetTagPlugin(options = {}) {
 
 // Hook into the emit lifecycle
 AssetTagPlugin.prototype.apply = function apply(compiler) {
-  compiler.plugin('emit', (compilation, callback) => {
+
+  compiler.hooks.emit.tap("AssetTagPlugin", (compilation) => {
+
     // Pass options to lib.
     const lib = libFn({
       options: this.options,
@@ -26,8 +28,6 @@ AssetTagPlugin.prototype.apply = function apply(compiler) {
       lib.createWebpackAssetJS(),
       lib.createWebpackAssetCSS()
     );
-
-    callback();
   });
 };
 
